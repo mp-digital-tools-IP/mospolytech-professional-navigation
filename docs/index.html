@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Профессиональная навигация — Московский Политех</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div id="serverBanner" class="server-banner hidden">
+  <div><b>Сервер с актуальными данными сейчас не подключен</b><span>Показан сохранённый снимок. Интерфейс работает в демонстрационном режиме.</span></div>
+  <button onclick="retryServer()">Проверить снова</button>
+</div>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brandmark"><span></span></div>
+      <div class="brandname">МОСКОВСКИЙ<br>ПОЛИТЕХ</div>
+    </div>
+
+    <nav id="sideNav">
+      <button class="active" data-view="home"><i>⌂</i><span>Главная</span></button>
+      <button data-view="diagnostics"><i>◫</i><span>Диагностика</span></button>
+      <button data-view="results"><i>⌁</i><span>Результаты</span></button>
+      <button data-view="recommendations"><i>☆</i><span>Рекомендации</span></button>
+      <button data-view="atlas"><i>▣</i><span>Атлас профессий</span></button>
+      <button data-view="programs"><i>▱</i><span>Образовательные программы</span></button>
+      <button data-view="trajectory"><i>⌘</i><span>Траектории</span></button>
+      <button data-view="prep"><i>▥</i><span>Подготовка к ЕГЭ и ДВИ</span></button>
+      <button data-view="dpo"><i>▤</i><span>Дополнительное образование (ДПО)</span></button>
+      <button data-view="market"><i>↗</i><span>Карьера и рынок труда</span></button>
+      <button data-view="profile"><i>♙</i><span>Профиль</span></button>
+      <button data-view="help"><i>?</i><span>Справка и поддержка</span></button>
+    </nav>
+
+    <div class="mentor-card">
+      <b>Личный наставник</b>
+      <p>Получите консультацию по выбору профессии и образовательного маршрута.</p>
+      <button>Записаться</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="page-title"><b>Профессиональная навигация</b><span>От интересов — к профессии — к успешному будущему</span></div>
+      <div class="top-actions">
+        <button class="search-btn">⌕ <span>Поиск</span></button>
+        <button class="icon-btn">♧</button>
+        <div class="user"><div class="avatar">АК</div><span>Алексей К.</span><b>⌄</b></div>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <div class="main-column">
+        <section class="view active" id="home">
+          <div class="hero">
+            <div class="hero-copy">
+              <h1>Найди своё направление<br>в Московском Политехе</h1>
+              <p>Пройди диагностику, получи персональные рекомендации, построй свою образовательную и карьерную траекторию и начни двигаться к мечте.</p>
+              <div class="hero-buttons">
+                <button class="primary" onclick="showView('diagnostics')">Начать диагностику <span>→</span></button>
+                <button class="secondary" onclick="showView('method')">Как это работает?</button>
+              </div>
+            </div>
+            <div class="hero-art">
+              <div class="scribble s1">Профессия<br>по мечте</div>
+              <div class="scribble s2">Образование<br>в Политехе</div>
+              <div class="scribble s3">Успешное<br>будущее</div>
+              <div class="student-shape">
+                <div class="head"></div><div class="hoodie">МОСКОВСКИЙ<br>ПОЛИТЕХ</div>
+              </div>
+              <div class="hero-badge">БОЛЬШЕ<br>ЧЕМ<br>ОБРАЗОВАНИЕ</div>
+            </div>
+          </div>
+
+          <div class="profile-summary card">
+            <div class="card-head"><h2>Мой профиль — краткий отчёт</h2><button onclick="showView('results')">Подробные результаты →</button></div>
+            <div class="profile-grid">
+              <div class="radar-wrap">
+                <svg class="radar" viewBox="0 0 340 260" aria-label="Диаграмма профиля">
+                  <g transform="translate(170 132)">
+                    <polygon points="0,-92 80,-46 80,46 0,92 -80,46 -80,-46" class="grid-p"/>
+                    <polygon points="0,-68 59,-34 59,34 0,68 -59,34 -59,-34" class="grid-p"/>
+                    <polygon points="0,-44 38,-22 38,22 0,44 -38,22 -38,-22" class="grid-p"/>
+                    <line x1="0" y1="-96" x2="0" y2="96"/><line x1="-83" y1="-48" x2="83" y2="48"/><line x1="-83" y1="48" x2="83" y2="-48"/>
+                    <polygon id="radarProfile" points="0,-72 63,-36 44,25 0,79 -58,33 -39,-23" class="profile-p"/>
+                  </g>
+                  <text x="170" y="18">Технический</text><text x="276" y="82">Исследовательский</text><text x="274" y="199">Артистический</text>
+                  <text x="170" y="252">Социальный</text><text x="18" y="199">Предпринимательский</text><text x="25" y="82">Практический</text>
+                </svg>
+                <div class="legend"><span><i class="dot blue"></i>Ваш профиль</span><span><i class="dot gray"></i>Средний по выборке</span></div>
+              </div>
+              <div class="type-card">
+                <h3>Ваш профиль: <span id="profileType">IAS</span></h3>
+                <b>Вдумчивый гуманист</b>
+                <p>Вы сочетаете аналитический склад ума с развитым воображением и интересом к созданию нового. Вам подходят профессии на стыке технологий, творчества и общения.</p>
+                <div class="chips"><span>Аналитическое мышление</span><span>Креативность</span><span>Интерес к технологиям</span><span>Работа с людьми</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-bottom">
+            <div class="card recommendations-mini">
+              <div class="card-head"><h2>Топ-10 рекомендуемых профессий <small>ⓘ</small></h2><button onclick="showView('method')">Как формируются рекомендации?</button></div>
+              <div id="topMini"></div>
+            </div>
+            <div class="card route-mini">
+              <h2>Мой образовательный маршрут</h2>
+              <div class="route-mini-list">
+                <div><span>1</span><p><b>Подготовка (9–11 класс)</b><small>ЕГЭ, ДВИ, подготовительные курсы Политеха</small></p><i>›</i></div>
+                <div><span>2</span><p><b>Поступление</b><small>Выбор программы и подача документов</small></p><i>›</i></div>
+                <div><span>3</span><p><b>Основное образование</b><small>Бакалавриат / Специалитет / Колледж</small></p><i>›</i></div>
+                <div><span>4</span><p><b>Дополнительное образование</b><small>Курсы, профпереподготовка, стажировки</small></p><i>›</i></div>
+                <div><span>5</span><p><b>Карьерный рост</b><small>Первая работа → эксперт → руководитель</small></p><i>›</i></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="diagnostics"><div class="section-title"><h1>Диагностика</h1><p>Пять независимых модулей: интересы, ценности, учебная готовность, образовательные ограничения и рабочие предпочтения.</p></div><div id="diagnosticContent" class="card section-card"></div></section>
+        <section class="view" id="results"><div class="section-title"><h1>Результаты</h1><p>Исходные шкалы и объяснимый профиль без «магического процента».</p></div><div class="card section-card" id="resultsContent"></div></section>
+        <section class="view" id="recommendations"><div class="section-title"><h1>Топ-10 рекомендуемых профессий</h1><p>Рекомендации с расшифровкой факторов, программы и рынка труда.</p></div><div class="card section-card" id="rankingFull"></div></section>
+        <section class="view" id="atlas"><div class="section-title"><h1>Атлас профессий</h1><p>Профессии, компетенции, спрос и маршруты Московского Политеха.</p></div><div id="atlasGrid" class="content-grid"></div></section>
+        <section class="view" id="programs"><div class="section-title"><h1>Образовательные программы</h1><p>Реальные программы Московского Политеха с годом показателя и источником.</p></div><div id="programGrid" class="content-grid"></div></section>
+        <section class="view" id="trajectory"><div class="section-title trajectory-head"><div><h1>Профессиональная траектория</h1><p>Образовательное ядро и три карьерные ветки.</p></div><div class="filters"><select id="trajectoryProfession"></select><select id="trajectoryBranch"><option value="expert">Экспертная</option><option value="research">Исследовательская</option><option value="manager">Управленческая</option></select></div></div><div id="trajectoryMap"></div></section>
+        <section class="view" id="prep"><div class="section-title"><h1>Подготовка к ЕГЭ и ДВИ</h1><p>Траектория до поступления — отдельная часть маршрута.</p></div><div class="card section-card" id="prepContent"></div></section>
+        <section class="view" id="dpo"><div class="section-title"><h1>Дополнительное образование (ДПО)</h1><p>Курсы повышения квалификации и профессиональной переподготовки как отдельный слой траектории.</p></div><div class="card section-card" id="dpoContent"></div></section>
+        <section class="view" id="market"><div class="section-title"><h1>Карьера и рынок труда</h1><p>Датированные данные, источник, география и качество выборки.</p></div><div id="marketGrid" class="content-grid"></div></section>
+        <section class="view" id="profile"><div class="section-title"><h1>Профиль</h1><p>Ваши результаты, ограничения и сохранённые маршруты.</p></div><div class="card section-card"><h2>Демо-профиль</h2><p>Личный кабинет будет подключён после авторизации. Сейчас этот экран работает на демонстрационных данных.</p></div></section>
+        <section class="view" id="help"><div class="section-title"><h1>Справка и поддержка</h1><p>Помощь абитуриенту и методические пояснения.</p></div><div class="card section-card"><h2>Задать вопрос</h2><p>В промышленной версии здесь будет чат/обращение к приёмной комиссии и карьерному консультанту.</p></div></section>
+        <section class="view" id="method"><div class="section-title"><h1>Как формируются рекомендации</h1><p>Методика открыта и версионируется.</p></div><div class="card section-card" id="methodContent"></div></section>
+      </div>
+
+      <aside class="rightbar">
+        <div class="card progress-card">
+          <div class="side-card-head"><h3>Мой прогресс</h3><b>3 / 5</b></div>
+          <div class="progress-line"><i style="width:60%"></i></div>
+          <div class="progress-list">
+            <div class="done">✓ <span>Анкета и интересы</span></div>
+            <div class="done">✓ <span>Профориентационные тесты</span></div>
+            <div class="done">✓ <span>Ценности и цели</span></div>
+            <div>○ <span>Образовательные предпочтения</span></div>
+            <div>○ <span>Готово — получи рекомендации!</span></div>
+          </div>
+        </div>
+
+        <div class="card prep-promo">
+          <div class="gift">✦</div><div><h3>Подготовься к ЕГЭ<br>вместе с Политехом</h3><p>Курсы, интенсивы, пробные экзамены и консультации.</p><button onclick="showView('prep')">Узнать больше →</button></div>
+        </div>
+
+        <div class="card events">
+          <div class="side-card-head"><h3>Ближайшие события</h3><button>Все события</button></div>
+          <div id="eventsList"></div>
+        </div>
+
+        <div class="card ask-card">
+          <div class="ask-icon">●●</div><div><h3>Задать вопрос</h3><p>Получите консультацию от приёмной комиссии или карьерного консультанта.</p></div>
+          <button>Написать</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<div id="modal" class="modal"><div class="modal-box"><button class="modal-close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
+<script src="./api-config.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
