@@ -1,16 +1,12 @@
-
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import json, math
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from .db import connect, rowdict, rows, DB
 
 ROOT=Path(__file__).resolve().parents[1]
-FRONTEND=ROOT/"frontend"
 
 app=FastAPI(
     title="Professional Navigation MVP",
@@ -209,7 +205,7 @@ def trajectory(slug:str, branch:str="expert"):
     con=connect()
     path=rowdict(con.execute("SELECT * FROM career_paths WHERE profession_slug=? AND branch=?",(slug,branch)).fetchone())
     con.close()
-    creative=slug in {"graphic","industrial"}
+    creative=slug in {"graphic","industrial","ux"}
     prep_title="Подготовка к ЕГЭ и творческим испытаниям" if creative else "Подготовка к ЕГЭ / внутренним испытаниям"
     prep_url="https://mospolytech.ru/podgotovitelnye-kursy-v-hudojestvennoy-shkole-poligraf/" if creative else "https://mospolytech.ru/dovuzovskoe-obrazovanie-i-podgotovka-k-ege/"
     education=[
@@ -219,7 +215,7 @@ def trajectory(slug:str, branch:str="expert"):
         {"kind":"degree","title":f'{pr["code"]} {pr["title"]}',"subtitle":f'{pr["form"]} · {pr["duration"]}',"meta":f'Бюджет: {pr["budget_places"] if pr["budget_places"] is not None else "н/д"} · стоимость: {pr["cost_rub"] if pr["cost_rub"] is not None else "н/д"} ₽/год',"url":pr["source_url"]},
         {"kind":"practice","title":"Проекты, практики, стажировки","subtitle":"Связаны с целевой должностью","meta":"Портфолио + индустриальный опыт"},
         {"kind":"gate","title":"Вступительное испытание в магистратуру","subtitle":"Отдельный переход ДО магистратуры","meta":"Тип экзамена — из правил приёма соответствующего года"},
-        {"kind":"master","title":f'{pr["master_code"] or ""} {pr["master_title"] or "Магистратура по профилю"}'.strip(),"subtitle":"Не обязательна для каждой роли","meta":"Добавляется, если усиливает выбранную ветку","url":pr["master_url"]},
+        {"kind":"master","title":f'{pr["master_code"] or ""} {pr["master_title"] or "Магистратура по профилю"}'.strip(),"subtitle":"Не обязательна для каждой роли","meta":"Добавляется, если усиливает выбранную ветку","url":pr.get("master_url")},
         {"kind":"dpo","title":"ДПО / повышение квалификации","subtitle":"Точечное закрытие дефицитов компетенций","meta":"Не универсальный обязательный шаг","url":"https://mospolytech.ru/povyshenie-kvalifikacii-i-professionalnaya-perepodgotovka/"}
     ]
     return {
@@ -231,7 +227,5 @@ def trajectory(slug:str, branch:str="expert"):
     }
 
 @app.get("/")
-def index():
-    return FileResponse(FRONTEND/"index.html")
-
-app.mount("/static",StaticFiles(directory=FRONTEND),name="static")
+def root_status():
+    return {"service":"Professional Navigation API","status":"ok","docs":"/docs"}
