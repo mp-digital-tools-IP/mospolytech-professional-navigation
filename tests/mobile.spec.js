@@ -24,31 +24,6 @@ test('нижняя мобильная навигация работает', asyn
   await boot(page);
   for (const id of ['diagnostics','recommendations','atlas','trajectory','home']) {
     const button = page.locator('.mobile-bottom-nav button[data-mobile-view="'+id+'"]');
-    if (id === 'home') {
-      const debug = await button.evaluate((el) => {
-        const r = el.getBoundingClientRect();
-        const nav = el.closest('.mobile-bottom-nav');
-        const nr = nav.getBoundingClientRect();
-        const cs = getComputedStyle(nav);
-        const x = r.left + r.width / 2;
-        const y = r.top + r.height / 2;
-        const hit = document.elementFromPoint(x, y);
-        const chain = [];
-        let p = hit;
-        while (p && chain.length < 8) {
-          chain.push(p.tagName + (p.id ? '#'+p.id : '') + (p.className && typeof p.className === 'string' ? '.'+p.className.trim().replace(/\s+/g,'.') : ''));
-          p = p.parentElement;
-        }
-        return {
-          viewport:{w:innerWidth,h:innerHeight,scrollY},
-          button:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height},
-          nav:{left:nr.left,top:nr.top,right:nr.right,bottom:nr.bottom,width:nr.width,height:nr.height,position:cs.position,zIndex:cs.zIndex,display:cs.display,pointerEvents:cs.pointerEvents,transform:cs.transform},
-          hit: hit ? hit.outerHTML.slice(0,300) : null,
-          chain
-        };
-      });
-      console.log('MOBILE_NAV_DEBUG '+JSON.stringify(debug));
-    }
     await button.click();
     await expect(page.locator('#'+id)).toHaveClass(/active/);
     await expect(page.locator('#'+id)).toBeVisible();
