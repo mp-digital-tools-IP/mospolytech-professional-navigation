@@ -53,7 +53,7 @@
 <section id="home" class="view active">
   <div class="hero card">
     <div class="hero-copy"><span class="eyebrow">ПРОФЕССИОНАЛЬНАЯ НАВИГАЦИЯ</span><h1>Найди своё направление<br>в Московском Политехе</h1><p>Пройди диагностику, узнай, какие профессии подходят именно тебе, и построй маршрут от подготовки к поступлению до первых карьерных шагов.</p><div class="hero-actions"><button class="btn btn-primary" onclick="showView('diagnostics')">Начать диагностику →</button><button class="btn btn-secondary" onclick="showView('method')">Как это работает?</button></div></div>
-    <div class="hero-image"><img src="./assets/hero-person.webp?v=32" alt="Студентка Московского Политеха"></div>
+    <div class="hero-image"><img src="https://mospolytech.ru/upload/medialibrary/bf7/48jr216ub81cv5exuwkuklvgdsd5goc3/203cd62a_1d7d_4998_8831_5db8f6b393a2.jpg" alt="Студентка Московского Политеха" loading="eager" referrerpolicy="no-referrer"></div>
   </div>
 
   <div class="profile-summary card">
@@ -74,10 +74,13 @@
 </section>
 
 <section id="diagnostics" class="view">
-  <div class="section-title"><span class="eyebrow">ДИАГНОСТИКА</span><h1>Пять шагов к осмысленной рекомендации</h1><p>Ответы сохраняются на этом устройстве. Можно закрыть страницу и продолжить позже.</p></div>
-  <div class="wizard card">
-    <div class="wizard-top"><div><span id="wizardStepLabel">Шаг 1 из 5</span><b id="wizardTitle">Профессиональные интересы</b></div><button class="text-btn" onclick="resetDiagnosis()">Начать заново</button></div>
+  <div class="section-title"><span class="eyebrow">ДИАГНОСТИКА</span><h1>Выберите глубину диагностики</h1><p>Можно пройти короткий навигационный скрининг или расширенную диагностику с поведенческими и мыслительными паттернами. Ответы сохраняются на этом устройстве.</p></div>
+  <div id="diagnosticModePicker" class="diagnostic-mode-grid"></div>
+  <div id="diagnosticMethodNote" class="diagnostic-method-note card"></div>
+  <div id="diagnosticWizardWrap" class="wizard card hidden">
+    <div class="wizard-top"><div><span id="wizardStepLabel">Шаг 1</span><b id="wizardTitle">Профессиональные интересы</b></div><div class="wizard-actions"><button class="text-btn" onclick="changeDiagnosticMode()">Сменить формат</button><button class="text-btn" onclick="resetDiagnosis()">Начать заново</button></div></div>
     <div class="wizard-progress"><i id="wizardProgressBar"></i></div>
+    <div class="wizard-meta"><span id="wizardQuestionCount"></span><span id="wizardModeLabel"></span></div>
     <div class="wizard-tabs" id="wizardTabs"></div>
     <div class="wizard-body" id="wizardBody"></div>
     <div class="wizard-footer"><button class="btn btn-secondary" id="backBtn" onclick="wizardBack()">← Назад</button><span id="wizardSaveState">Ответы сохраняются автоматически</span><button class="btn btn-primary" id="nextBtn" onclick="wizardNext()">Далее →</button></div>
