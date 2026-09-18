@@ -101,35 +101,170 @@ function fillTrajectory(){
   s.onchange=renderTrajectory;
   $("#trajectoryBranch").onchange=renderTrajectory;
 }
+
+function trajectoryBranchMeta(branch){
+  const map={
+    expert:{
+      title:"Экспертная",
+      subtitle:"Углубление в профессии",
+      purpose:"Решать самые сложные профессиональные задачи самому и становиться носителем глубокой экспертизы.",
+      education:"Магистратура — по необходимости. ДПО и сертификации — точечно под технологический дефицит.",
+      outcome:"Сложное профессиональное решение",
+      responsibility:"Качество решения и экспертная глубина",
+      accent:"expert"
+    },
+    research:{
+      title:"Исследовательская",
+      subtitle:"R&D и создание нового",
+      purpose:"Не только применять готовые подходы, а создавать и проверять новые методы, технологии и решения.",
+      education:"Магистратура становится базовой частью маршрута; затем возможна аспирантура и работа в лаборатории/R&D.",
+      outcome:"Новое знание, метод, прототип, публикация или R&D-результат",
+      responsibility:"Методика, воспроизводимость и доказательность",
+      accent:"research"
+    },
+    manager:{
+      title:"Управленческая",
+      subtitle:"Команда и направление",
+      purpose:"Перейти от личного выполнения задач к ответственности за команду, проект, продукт или направление.",
+      education:"Магистратура не обязательна. Важнее управленческое ДПО: проекты, экономика, команда, коммуникации.",
+      outcome:"Результат команды, проекта или направления",
+      responsibility:"Люди, сроки, бюджет и KPI",
+      accent:"manager"
+    }
+  };
+  return map[branch];
+}
+function branchEducation(branch,pr){
+  if(branch==="research") return [
+    ["research-project","Исследовательский проект","Работа с гипотезой, экспериментом, данными или прототипом."],
+    ["gate","Вступительное испытание в магистратуру","Отдельная контрольная точка ДО магистратуры."],
+    ["master",(pr&&pr.master_title)||"Профильная магистратура","Углублённые методы, research-практика, лаборатория."],
+    ["lab","Лаборатория / R&D","Исследовательская роль, публикации, прототипы, индустриальные R&D-задачи."],
+    ["phd","Аспирантура — опционально","Для академической и глубокой научно-исследовательской траектории."]
+  ];
+  if(branch==="manager") return [
+    ["first-role","Первая профессиональная роль","Сначала нужна предметная база — управлять тем, чего не понимаешь, нельзя."],
+    ["project","Ответственность за небольшой проект","Координация сроков, участников и результата."],
+    ["dpo","ДПО: управление проектами и командой","Экономика проекта, коммуникации, планирование, управление рисками."],
+    ["lead","Руководитель команды / продукта","Ответственность уже не только за свою задачу, но и за общий результат."],
+    ["management-master","Магистратура — опционально","Может усиливать управленческий трек, но не является обязательной ступенью."]
+  ];
+  return [
+    ["specialization","Профессиональная специализация","Углубление в инструменты и задачи выбранной профессии."],
+    ["practice-deep","Сложные индустриальные проекты","Рост через портфолио, ответственность и сложность решаемых задач."],
+    ["dpo","ДПО / сертификация — по необходимости","Закрывает конкретный дефицит компетенций, а не является обязательной ступенью."],
+    ["expert-level","Экспертный уровень","Senior / Lead / Principal / главный специалист в своей предметной области."]
+  ];
+}
+function roleTask(branch,index){
+  if(branch==="research"){
+    return [
+      "Помогает в исследованиях, собирает данные, воспроизводит эксперименты.",
+      "Формулирует гипотезы, проектирует эксперимент, создаёт прототипы.",
+      "Ведёт самостоятельную R&D-задачу и отвечает за методическую корректность.",
+      "Определяет исследовательскую программу и координирует R&D-команду."
+    ][Math.min(index,3)];
+  }
+  if(branch==="manager"){
+    return [
+      "Сохраняет предметную роль и начинает брать ответственность за небольшой участок.",
+      "Координирует команду или проект: сроки, зависимости, коммуникации.",
+      "Отвечает за результат направления, ресурсы и развитие команды.",
+      "Формирует стратегию, портфель инициатив и ключевые показатели."
+    ][Math.min(index,3)];
+  }
+  return [
+    "Осваивает профессиональные инструменты и работает под наставничеством.",
+    "Самостоятельно решает типовые и часть сложных профессиональных задач.",
+    "Берёт наиболее сложные задачи, определяет стандарты качества, наставляет коллег.",
+    "Определяет архитектуру/подходы и выступает главным носителем экспертизы."
+  ][Math.min(index,3)];
+}
 async function getTrajectory(slug,branch){
-  if(live){try{return await fetchJSON(API_BASE+"/api/trajectory/"+slug+"?branch="+branch);}catch(e){}}
-  const p=findProfession(slug),pr=findProgram(p.program_slug),m=market[p.market_key]||{},creative=["graphic","industrial","ux"].includes(slug);
-  return {profession:p.name,program:pr,market:m,education:[
+  let p=findProfession(slug),pr=findProgram(p&&p.program_slug),m=(p&&market[p.market_key])||{};
+  let backendCareer=null;
+  if(live){
+    try{
+      const d=await fetchJSON(API_BASE+"/api/trajectory/"+slug+"?branch="+branch);
+      pr=d.program||pr; m=d.market||m; backendCareer=d.career||null;
+    }catch(e){}
+  }
+  const creative=["graphic","industrial","ux"].includes(slug);
+  const common=[
     {kind:"start",title:"Текущая ступень",subtitle:"9–11 класс / СПО / другое образование"},
-    {kind:"prep",title:creative?"Подготовка к ЕГЭ и ДВИ":"Подготовка к ЕГЭ",subtitle:"Курсы Московского Политеха"},
-    {kind:"gate",title:"ЕГЭ / ДВИ",subtitle:(pr&&pr.exams)||"По правилам приёма"},
+    {kind:"prep",title:creative?"Подготовка к ЕГЭ и ДВИ":"Подготовка к ЕГЭ",subtitle:creative?"ЕГЭ + творческие испытания":"Курсы Московского Политеха"},
+    {kind:"gate",title:"ЕГЭ / ДВИ",subtitle:(pr&&pr.exams)||"По правилам приёма соответствующего года"},
     {kind:"degree",title:pr?pr.code+" "+pr.title:"Основная программа",subtitle:pr?(pr.form||"")+" · "+(pr.duration||""):""},
-    {kind:"practice",title:"Проекты и стажировки",subtitle:"Портфолио + индустриальный опыт"},
-    {kind:"gate",title:"Вступительное испытание в магистратуру",subtitle:"Отдельный переход ДО магистратуры"},
-    {kind:"master",title:(pr&&pr.master_title)||"Магистратура",subtitle:(pr&&pr.master_code)||""},
-    {kind:"dpo",title:"ДПО",subtitle:"По дефицитам компетенций"}
-  ],career:((career[slug]||{})[branch]||[])};
+    {kind:"practice",title:"Проекты, практика, стажировки",subtitle:"Общее образовательное ядро до карьерной развилки"}
+  ];
+  const fallbackCareer=((career[slug]||{})[branch]||[]);
+  return {
+    profession:p?p.name:"",
+    slug:slug,
+    program:pr,
+    market:m,
+    common:common,
+    branchEducation:branchEducation(branch,pr),
+    career:(backendCareer&&backendCareer.length?backendCareer:fallbackCareer),
+    meta:trajectoryBranchMeta(branch)
+  };
+}
+function branchSelectorCard(branch,data,chosen){
+  const m=data.meta;
+  const selected=branch===chosen?" selected":"";
+  return '<button class="branch-choice '+m.accent+selected+'" onclick="document.querySelector(\'#trajectoryBranch\').value=\''+branch+'\';renderTrajectory()">'+
+    '<span class="branch-choice-kicker">'+m.title+'</span>'+
+    '<b>'+m.subtitle+'</b>'+
+    '<small>'+m.purpose+'</small>'+
+    '<span class="branch-choice-more">Показать маршрут →</span>'+
+  '</button>';
+}
+function laneNodeHtml(node,branch,index){
+  return '<div class="lane-node '+branch+'"><span class="lane-index">'+(index+1)+'</span><div><b>'+node[0]+'</b><small>'+node[1]+'</small><p>'+roleTask(branch,index)+'</p>'+(node[2]&&node[2]!=="—"?'<span class="salary">'+node[2]+'</span>':"")+'</div></div>';
 }
 async function renderTrajectory(){
   const s=$("#trajectoryProfession"); if(!s || !professions.length) return;
-  const slug=s.value||professions[0].slug, chosen=$("#trajectoryBranch").value;
-  const data=await Promise.all(["expert","research","manager"].map(function(b){return getTrajectory(slug,b);}));
-  const e=data[0],r=data[1],m=data[2],mk=e.market||{},pr=e.program||{};
-  const headline=mk.median_salary?"медиана "+fmt(mk.median_salary)+" ₽":mk.salary_min?fmt(mk.salary_min)+"–"+fmt(mk.salary_max)+" ₽":"данные рынка";
-  let html='<div class="trajectory-banner"><div><h2>'+e.profession+'</h2><p>'+(pr.code||"")+' '+(pr.title||"")+'</p></div><div class="market-badge"><span>Москва · рынок труда</span><b>'+headline+'</b><small>'+(mk.snapshot||fallback.meta.snapshot)+'</small></div></div>';
-  html+='<div class="education-flow">'+e.education.map(function(n,i){return '<div class="edu-node '+n.kind+'"><span class="step">'+(i+1)+'</span><h4>'+n.title+'</h4><p>'+(n.subtitle||"")+'</p></div>';}).join("")+'</div>';
-  html+='<div class="branch-label">После образовательного ядра маршрут расходится на три карьерные ветки</div><div class="branches">';
-  [["expert","Экспертная","Глубина и специализация",e.career],["research","Исследовательская","R&D и создание нового",r.career],["manager","Управленческая","Команда и направление",m.career]].forEach(function(b){
-    html+='<section class="branch '+b[0]+'" style="'+(chosen===b[0]?"outline:3px solid rgba(75,110,185,.15);outline-offset:2px":"")+'"><h3>'+b[1]+'</h3><p class="source">'+b[2]+'</p>';
-    html+=(b[3].length?b[3].map(function(n){return '<div class="role"><b>'+n[0]+'</b><small>'+n[1]+'</small>'+(n[2]&&n[2]!=="—"?'<span class="salary">'+n[2]+'</span>':"")+'</div>';}).join(""):'<p class="source">Ветка требует экспертного наполнения.</p>')+'</section>';
+  const slug=s.value||professions[0].slug, chosen=$("#trajectoryBranch").value||"expert";
+  const arr=await Promise.all(["expert","research","manager"].map(function(b){return getTrajectory(slug,b);}));
+  const data={expert:arr[0],research:arr[1],manager:arr[2]}, base=data.expert, current=data[chosen];
+  const mk=base.market||{},pr=base.program||{};
+  const headline=mk.median_salary?"медиана "+fmt(mk.median_salary)+" ₽":mk.salary_min?fmt(mk.salary_min)+"–"+fmt(mk.salary_max)+" ₽":"датированный рынок";
+  let html='<div class="trajectory-banner"><div><span class="eyebrow" style="color:#b9c7ea">КАРТА РАЗВИТИЯ</span><h2>'+base.profession+'</h2><p>'+(pr.code||"")+' '+(pr.title||"")+'</p></div><div class="market-badge"><span>Москва · рынок труда</span><b>'+headline+'</b><small>'+(mk.snapshot||fallback.meta.snapshot)+'</small></div></div>';
+
+  html+='<div class="route-section-title"><div><b>1. Общий маршрут до развилки</b><span>Эти этапы нужны независимо от того, какой карьерный трек человек выберет дальше.</span></div></div>';
+  html+='<div class="route-common">'+base.common.map(function(n,i){
+    return '<div class="common-step '+n.kind+'"><span class="step">'+(i+1)+'</span><div><b>'+n.title+'</b><small>'+n.subtitle+'</small></div></div>';
+  }).join("")+'</div>';
+
+  html+='<div class="split-hub"><span class="split-line"></span><div class="split-point"><b>ТОЧКА РАЗВИЛКИ</b><small>После базовой профессиональной подготовки траектории начинают реально отличаться.</small></div><span class="split-line"></span></div>';
+
+  html+='<div class="branch-choice-grid">'+branchSelectorCard("expert",data.expert,chosen)+branchSelectorCard("research",data.research,chosen)+branchSelectorCard("manager",data.manager,chosen)+'</div>';
+
+  html+='<div class="branch-difference card"><div class="difference-head"><span class="branch-pill '+current.meta.accent+'">'+current.meta.title+'</span><div><h3>Что меняется в этой ветке</h3><p>'+current.meta.purpose+'</p></div></div><div class="difference-grid">'+
+    '<div><span>Образование</span><b>'+current.meta.education+'</b></div>'+
+    '<div><span>Главный результат</span><b>'+current.meta.outcome+'</b></div>'+
+    '<div><span>Тип ответственности</span><b>'+current.meta.responsibility+'</b></div>'+
+  '</div></div>';
+
+  html+='<div class="route-section-title"><div><b>2. Дополнительные этапы именно этой ветки</b><span>Поэтому исследовательская, экспертная и управленческая траектории — не одно и то же.</span></div></div>';
+  html+='<div class="branch-education-flow '+chosen+'">'+current.branchEducation.map(function(n,i){
+    return '<div class="branch-edu-node '+n[0]+'"><span class="step">'+(i+1)+'</span><b>'+n[1]+'</b><small>'+n[2]+'</small></div>';
+  }).join("")+'</div>';
+
+  html+='<div class="route-section-title"><div><b>3. Должностная траектория — все три варианта рядом</b><span>Сравните, как меняется не только название должности, но и характер работы.</span></div></div>';
+  html+='<div class="career-lanes">';
+  ["expert","research","manager"].forEach(function(branch){
+    const d=data[branch], active=branch===chosen?" active":"";
+    html+='<section class="career-lane '+branch+active+'"><div class="lane-header"><span>'+d.meta.title+'</span><b>'+d.meta.subtitle+'</b><small>'+d.meta.outcome+'</small></div><div class="lane-track">'+
+      (d.career.length?d.career.map(function(node,i){return laneNodeHtml(node,branch,i);}).join(""):'<div class="lane-empty">Нужно экспертное наполнение по конкретной профессии.</div>')+
+    '</div></section>';
   });
-  $("#trajectoryMap").innerHTML=html+'</div>';
+  html+='</div>';
+
+  html+='<div class="trajectory-note"><b>Как читать карту:</b> эксперт растёт за счёт глубины профессиональной задачи; исследователь — за счёт R&D, магистратуры и методической новизны; руководитель — за счёт перехода от личной задачи к ответственности за людей, ресурсы и результат направления.</div>';
+  $("#trajectoryMap").innerHTML=html;
 }
+
 async function openProfession(slug){
   let p=findProfession(slug),pr=findProgram(p&&p.program_slug),m=findMarket(slug),rec=recommendations.find(function(x){return x.slug===slug;});
   if(live){try{const d=await fetchJSON(API_BASE+"/api/professions/"+slug);p=d.profession;pr=d.program;m=d.market;}catch(e){}}
