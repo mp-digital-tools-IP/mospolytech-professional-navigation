@@ -28,15 +28,15 @@ async function tryLive(){
 }
 async function retryServer(){await tryLive();await refreshRecommendations();renderEverything()}window.retryServer=retryServer;
 function bindNavigation(){
-  $("#nav button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+  $$("#nav button").forEach(b=>b.onclick=()=>showView(b.dataset.view));
 }
 function openMobileNav(){document.body.classList.add("nav-open")}
 function closeMobileNav(){document.body.classList.remove("nav-open")}
 window.openMobileNav=openMobileNav;window.closeMobileNav=closeMobileNav;
 function showView(id){
-  $(".view").forEach(v=>v.classList.toggle("active",v.id===id));
-  $("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
-  $(".mobile-bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.mobileView===id));
+  $$(".view").forEach(v=>v.classList.toggle("active",v.id===id));
+  $$("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+  $$(".mobile-bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.mobileView===id));
   closeMobileNav();
   if(id==="diagnostics")renderWizard();
   if(id==="results")renderResults();
