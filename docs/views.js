@@ -1,13 +1,16 @@
 function profileNarrative(){
+  if(typeof diagnosis!=="undefined" && !diagnosis.finished){
+    return {top:[],code:"—",name:"Диагностика ещё не завершена",text:"Пройдите короткий или расширенный вариант — после этого профиль и TOP‑10 будут пересчитаны по вашим ответам."};
+  }
   const top=Object.entries(computeProfile().riasec).sort(function(a,b){return b[1]-a[1];}).slice(0,3);
   const code=top.map(function(x){return x[0];}).join("–");
   const names=top.map(function(x){return riaLabels[x[0]].toLowerCase();});
   let name="Сбалансированный профессиональный профиль";
-  if(top[0][0]==="I" && top.some(function(x){return x[0]==="A";})) name="Исследователь с творческим уклоном";
-  else if(top[0][0]==="R" && top.some(function(x){return x[0]==="I";})) name="Инженерно-исследовательский профиль";
-  else if(top[0][0]==="A") name="Творческий проектировщик";
-  else if(top[0][0]==="E") name="Предпринимательский организатор";
-  else if(top[0][0]==="S") name="Социально-коммуникационный профиль";
+  if(top[0]&&top[0][0]==="I" && top.some(function(x){return x[0]==="A";})) name="Исследователь с творческим уклоном";
+  else if(top[0]&&top[0][0]==="R" && top.some(function(x){return x[0]==="I";})) name="Инженерно-исследовательский профиль";
+  else if(top[0]&&top[0][0]==="A") name="Творческий проектировщик";
+  else if(top[0]&&top[0][0]==="E") name="Предпринимательский организатор";
+  else if(top[0]&&top[0][0]==="S") name="Социально-коммуникационный профиль";
   return {top:top,code:code,name:name,text:"Наиболее выражены "+names.join(", ")+" интересы. Это ориентир для исследования профессий, а не психологический диагноз."};
 }
 function drawRadar(svg,data){
@@ -40,12 +43,28 @@ function resultLines(obj,labels){
     return '<div class="result-line"><span>'+labels[entry[0]]+'</span><div class="bar"><i style="width:'+entry[1]+'%"></i></div><b>'+entry[1]+'</b></div>';
   }).join("");
 }
+const behaviorLabels={initiative:"Инициативность",persistence:"Настойчивость",selfreg:"Саморегуляция",collaboration:"Командное взаимодействие",communication:"Коммуникация",leadership:"Лидерская ответственность"};
+const cognitiveLabels={analysis:"Аналитичность",ambiguity:"Работа с неопределённостью",structure:"Структурирование"};
+function branchAnalysisHtml(a){
+  const labels={expert:["Экспертная","Глубина профессиональной задачи"],research:["Исследовательская","R&D, гипотезы и новые решения"],manager:["Управленческая","Команда, проект и результат направления"]};
+  return '<div class="branch-indicators">'+Object.entries(a.branch).map(function(x){
+    return '<div class="branch-indicator '+x[0]+'"><div><span>'+labels[x[0]][0]+'</span><b>'+labels[x[0]][1]+'</b></div><strong>'+x[1]+'</strong><div class="bar"><i style="width:'+x[1]+'%"></i></div></div>';
+  }).join("")+'</div>';
+}
 function renderResults(){
   const el=$("#resultsContent"); if(!el) return;
-  const p=computeProfile(),n=profileNarrative();
-  el.innerHTML='<div class="results-grid"><div class="card results-card"><h2>Профессиональные интересы</h2><svg id="resultsRadar" viewBox="0 0 360 270" style="width:100%;height:270px"></svg>'+resultLines(p.riasec,riaLabels)+'</div>'+
+  const p=computeProfile(),n=profileNarrative(),a=deepAnalysis();
+  let html='<div class="results-grid"><div class="card results-card"><h2>Профессиональные интересы</h2><svg id="resultsRadar" viewBox="0 0 360 270" style="width:100%;height:270px"></svg>'+resultLines(p.riasec,riaLabels)+'</div>'+
   '<div class="card profile-big"><span class="eyebrow">ВАШ ПРОФИЛЬ</span><h2>'+n.code+' · <span>'+n.name+'</span></h2><p>'+n.text+'</p><h3>Рабочие ценности</h3>'+resultLines(p.values,valueLabels)+'<button class="btn btn-primary" onclick="showView(\'recommendations\')">Перейти к TOP‑10 →</button></div></div>';
-  drawRadar($("#resultsRadar"),p.riasec);
+  if(typeof diagnosis!=="undefined" && diagnosis.finished && diagnosis.mode==="deep"){
+    html+='<div class="deep-report card"><div class="deep-report-head"><div><span class="eyebrow">РАСШИРЕННЫЙ ОТЧЁТ</span><h2>Поведенческие и мыслительные паттерны</h2><p>Этот слой помогает понять не только «что интересно», но и какой тип задач и среды может быть естественнее.</p></div><div class="data-quality"><span>Качество заполнения</span><b>'+a.completed+'%</b><small>внутренняя согласованность: '+(a.consistency==null?"—":a.consistency+"%")+'</small></div></div>'+
+      '<div class="deep-two"><div><h3>Поведенческие индикаторы</h3>'+resultLines(p.behavior,behaviorLabels)+'</div><div><h3>Стиль решения задач</h3>'+resultLines(p.cognitive,cognitiveLabels)+'</div></div>'+
+      '<div class="deep-branch"><h3>Какой тип карьерного движения выглядит естественнее</h3><p>Это эвристический индикатор для навигации, а не заключение о профпригодности.</p>'+branchAnalysisHtml(a)+'</div>'+
+      '<div class="deep-method-warning"><b>Методологический статус</b><span>Расширенный модуль — прототип авторской диагностики. До отдельной психометрической валидизации нельзя интерпретировать эти баллы как стандартизованные психологические нормы или доказанную точность прогноза.</span></div></div>';
+  }else if(typeof diagnosis!=="undefined" && diagnosis.finished){
+    html+='<div class="upgrade-report card"><div><span class="eyebrow">ХОТИТЕ БОЛЬШЕ ДЕТАЛЕЙ?</span><h2>Пройдите расширенную диагностику</h2><p>136 ответов вместо 58: добавятся поведенческие паттерны, стиль решения задач и отдельный анализ экспертной, исследовательской и управленческой траекторий.</p></div><button class="btn btn-primary" onclick="chooseDiagnosticMode(\'deep\');showView(\'diagnostics\')">Перейти к глубокому анализу →</button></div>';
+  }
+  el.innerHTML=html;drawRadar($("#resultsRadar"),p.riasec);
 }
 function renderRecommendationsFull(){
   const el=$("#recommendationsFull"); if(!el) return;
