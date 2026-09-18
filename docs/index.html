@@ -24,7 +24,7 @@
 
 <div class="layout">
 <aside class="sidebar">
-  <div class="brand"><img src="./assets/logo-polytech.webp" alt="Московский Политех"></div>
+  <div class="brand"><img src="./assets/logo-polytech.webp" alt="Московский Политех"><button class="mobile-nav-close" type="button" aria-label="Закрыть меню" onclick="closeMobileNav()">×</button></div>
   <nav id="nav">
     <button class="active" data-view="home"><svg><use href="#i-home"/></svg><span>Главная</span></button>
     <button data-view="diagnostics"><svg><use href="#i-test"/></svg><span>Диагностика</span></button>
@@ -41,9 +41,12 @@
   </nav>
   <div class="mentor card"><b>Личный наставник</b><p>Консультация по выбору профессии и образовательного маршрута.</p><button class="btn btn-primary">Записаться</button></div>
 </aside>
+<div id="mobileNavOverlay" class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
 
 <main class="main">
 <header class="topbar">
+  <button class="mobile-menu-toggle" type="button" aria-label="Открыть меню" onclick="openMobileNav()">☰</button>
+  <div class="mobile-brand"><img src="./assets/logo-polytech.webp" alt=""><span>Профнавигация</span></div>
   <div class="top-title"><b>Профессиональная навигация</b><span>От интересов — к профессии — к успешному будущему</span></div>
   <div class="top-actions"><button class="search">⌕ <span>Поиск</span></button><button class="bell">○</button><div class="user"><span class="avatar">АК</span><b>Алексей К.</b><span>⌄</span></div></div>
 </header>
@@ -53,7 +56,7 @@
 <section id="home" class="view active">
   <div class="hero card">
     <div class="hero-copy"><span class="eyebrow">ПРОФЕССИОНАЛЬНАЯ НАВИГАЦИЯ</span><h1>Найди своё направление<br>в Московском Политехе</h1><p>Пройди диагностику, узнай, какие профессии подходят именно тебе, и построй маршрут от подготовки к поступлению до первых карьерных шагов.</p><div class="hero-actions"><button class="btn btn-primary" onclick="showView('diagnostics')">Начать диагностику →</button><button class="btn btn-secondary" onclick="showView('method')">Как это работает?</button></div></div>
-    <div class="hero-image"><img src="https://mospolytech.ru/upload/medialibrary/bf7/48jr216ub81cv5exuwkuklvgdsd5goc3/203cd62a_1d7d_4998_8831_5db8f6b393a2.jpg" alt="Студентка Московского Политеха" loading="eager" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://mospolytech.ru/upload/medialibrary/329/8kbqtfmcny0xqgqspjrd8gv208twa8q1/aprelya-08_-2026_231A9012.jpg'"></div>
+    <div class="hero-image"><img src="./assets/hero-person.webp?v=original" alt="Девушка-студентка Московского Политеха" loading="eager"></div>
   </div>
 
   <div class="profile-summary card">
@@ -118,6 +121,14 @@
 </div>
 </main>
 </div>
+
+<nav class="mobile-bottom-nav" aria-label="Основная мобильная навигация">
+  <button class="active" data-mobile-view="home" onclick="showView('home')"><svg><use href="#i-home"/></svg><span>Главная</span></button>
+  <button data-mobile-view="diagnostics" onclick="showView('diagnostics')"><svg><use href="#i-test"/></svg><span>Тест</span></button>
+  <button data-mobile-view="recommendations" onclick="showView('recommendations')"><svg><use href="#i-star"/></svg><span>TOP‑10</span></button>
+  <button data-mobile-view="atlas" onclick="showView('atlas')"><svg><use href="#i-atlas"/></svg><span>Атлас</span></button>
+  <button data-mobile-view="trajectory" onclick="showView('trajectory')"><svg><use href="#i-route"/></svg><span>Маршрут</span></button>
+</nav>
 
 <div class="modal" id="modal"><div class="modal-box"><button class="modal-close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
 <script src="./api-config.js"></script>
