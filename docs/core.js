@@ -43,7 +43,7 @@ function showView(id){
   if(id==="recommendations")renderRecommendationsFull();
   if(id==="trajectory")renderTrajectory();
   if(id==="market")renderMarket();
-  scrollTo({top:0,behavior:"smooth"});
+  window.scrollTo({top:0,behavior:window.matchMedia("(max-width: 820px)").matches?"auto":"smooth"});
 }
 window.showView=showView;
 function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}function sim(a,b,keys){return Math.max(0,100-avg(keys.map(k=>Math.abs((a[k]??50)-(b[k]??50)))))}
