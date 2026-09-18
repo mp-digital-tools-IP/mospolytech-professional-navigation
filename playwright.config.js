@@ -5,7 +5,7 @@ module.exports = defineConfig({
   timeout: 30000,
   expect: { timeout: 7000 },
   fullyParallel: false,
-  retries: 1,
+  retries: 0,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {
     baseURL: process.env.BASE_URL || 'http://127.0.0.1:4173',
@@ -22,7 +22,7 @@ module.exports = defineConfig({
     {
       name: 'mobile-chromium',
       testMatch: /mobile\.spec\.js/,
-      use: { ...devices['iPhone 13'], viewport: { width: 390, height: 844 } }
+      use: { ...devices['Pixel 5'], viewport: { width: 390, height: 844 } }
     }
   ]
 });
