@@ -1,0 +1,55 @@
+name: Post-deploy public smoke
+
+on:
+  workflow_run:
+    workflows: ["Deploy GitHub Pages"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: post-deploy-smoke
+  cancel-in-progress: true
+
+jobs:
+  public-smoke:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Wait for Pages propagation
+        run: |
+          for i in {1..30}; do
+            if curl -fsS https://mp-digital-tools-ip.github.io/mospolytech-professional-navigation/ >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - name: Run public desktop and mobile smoke tests
+        env:
+          BASE_URL: https://mp-digital-tools-ip.github.io/mospolytech-professional-navigation/
+        run: npx playwright test
+      - name: Upload public smoke report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-smoke-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7
