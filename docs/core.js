@@ -9,7 +9,23 @@ const valueLabels={achievement:"Достижения",conditions:"Условия
 const subjectLabels={math:"Математика",physics:"Физика",it:"Информатика",russian:"Русский язык",literature:"Литература",art:"Рисунок / композиция"};
 async function fetchJSON(url,opts={}){const r=await fetch(url,{headers:{"Content-Type":"application/json"},...opts});if(!r.ok)throw new Error(await r.text());return r.json()}
 function hydrateFallback(){professions=fallback.professions||[];programs=fallback.programs||[];market=fallback.market||{};career=fallback.career||{}}
-async function tryLive(){live=false;if(API_BASE){try{const h=await fetchJSON(API_BASE+"/api/health");if(h.status==="ok"){[professions,programs]=await Promise.all([fetchJSON(API_BASE+"/api/professions"),fetchJSON(API_BASE+"/api/programs")]);live=true}}catch(e){console.warn("Live API unavailable",e)}}const n=$("#dataNotice");n.classList.toggle("hidden",live);if(!live)$("#dataNoticeText").textContent=`Показана сохранённая версия от ${fallback?.meta?.snapshot||"18.09.2026"}.`}
+async function tryLive(){
+  live=false;
+  if(API_BASE){
+    try{
+      const h=await fetchJSON(API_BASE+"/api/health");
+      if(h.status==="ok"){
+        [professions,programs]=await Promise.all([
+          fetchJSON(API_BASE+"/api/professions"),
+          fetchJSON(API_BASE+"/api/programs")
+        ]);
+        live=true;
+      }
+    }catch(e){
+      console.warn("Live API unavailable; using bundled snapshot.",e);
+    }
+  }
+}
 async function retryServer(){await tryLive();await refreshRecommendations();renderEverything()}window.retryServer=retryServer;
 function bindNavigation(){$$("#nav button").forEach(b=>b.onclick=()=>showView(b.dataset.view))}
 function showView(id){$$(".view").forEach(v=>v.classList.toggle("active",v.id===id));$$("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));if(id==="diagnostics")renderWizard();if(id==="results")renderResults();if(id==="recommendations")renderRecommendationsFull();if(id==="trajectory")renderTrajectory();if(id==="market")renderMarket();scrollTo({top:0,behavior:"smooth"})}window.showView=showView;
