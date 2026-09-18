@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 async function boot(page) {
-  await page.goto('/?e2e=1', { waitUntil: 'networkidle' });
+  await page.goto('./?e2e=1', { waitUntil: 'networkidle' });
   await expect(page.locator('#home')).toHaveClass(/active/);
   await expect(page.locator('.hero h1')).toContainText('Найди своё направление');
 }
