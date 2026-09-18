@@ -54,10 +54,66 @@ function renderRecommendationsFull(){
     return '<div class="full-rank"><span class="num">'+(i+1)+'</span><div><b>'+r.name+'</b><br><small>'+(r.sector||"")+' · интересы '+(f.interest||"—")+' · ценности '+(f.values||"—")+' · готовность '+(f.readiness||"—")+'</small></div><div class="bar"><i style="width:'+r.score+'%"></i></div><b>'+r.score+'</b><button onclick="openProfession(\''+r.slug+'\')">Почему?</button></div>';
   }).join("");
 }
+const atlasClusters=[
+  {id:"all",label:"Все направления",short:"Все",description:"Все профессии, которые уже наполнены в текущем MVP."},
+  {id:"it",label:"Информационные технологии",short:"IT",description:"Разработка цифровых продуктов, данные, искусственный интеллект и информационная безопасность."},
+  {id:"art",label:"Арт, дизайн и медиа",short:"Арт",description:"Дизайн, визуальные коммуникации, интерфейсы, медиа и креативные индустрии."},
+  {id:"urban",label:"Урбанистика",short:"Город",description:"Городская среда, инфраструктура, цифровые и инженерные системы современного города."},
+  {id:"business",label:"Бизнес",short:"Бизнес",description:"Маркетинг, продукт, управление, экономика и развитие бизнес-процессов."},
+  {id:"transport",label:"Транспорт, инженерия, логистика",short:"Транспорт",description:"Транспортные системы, робототехника, автономные технологии, логистика и инженерные решения."},
+  {id:"production",label:"Технологии, материалы и производство",short:"Производство",description:"Проектирование, машиностроение, материалы, производственные технологии и индустриальная инженерия."},
+  {id:"life",label:"Экология и технологии жизни",short:"Life",description:"Экология, химические и биотехнологии, технологии качества жизни и устойчивого развития."}
+];
+let atlasCategory="all";
+const atlasPrimaryCluster={
+  ai:"it", data:"it", cyber:"it",
+  graphic:"art", industrial:"art", ux:"art",
+  product:"business", marketing:"business",
+  robot:"transport", engineer:"production"
+};
+const atlasSubcategory={
+  ai:"Искусственный интеллект", data:"Данные и аналитика", cyber:"Информационная безопасность",
+  graphic:"Графический дизайн", industrial:"Промышленный дизайн", ux:"Цифровой продукт и UX",
+  product:"Продукт и управление", marketing:"Маркетинг и коммуникации",
+  robot:"Робототехника", engineer:"Машиностроение"
+};
+function setAtlasCategory(id){
+  atlasCategory=id;
+  renderAtlas();
+}
+window.setAtlasCategory=setAtlasCategory;
 function renderAtlas(){
   const el=$("#atlasGrid"); if(!el) return;
-  el.innerHTML=professions.map(function(p){
-    return '<article class="content-card"><span class="tag">'+p.sector+'</span><h3>'+p.name+'</h3><p>'+(p.description||"")+'</p><div class="skills">'+(p.skills||[]).slice(0,6).map(function(s){return '<span>'+s+'</span>';}).join("")+'</div><p><button class="link-btn" onclick="openProfession(\''+p.slug+'\')">Профессия и маршрут →</button></p></article>';
+  const cats=$("#atlasCategories"),note=$("#atlasClusterNote"),count=$("#atlasCount"),search=$("#atlasSearch");
+  if(search && !search.dataset.bound){
+    search.dataset.bound="1";
+    search.addEventListener("input",renderAtlas);
+  }
+  const q=(search&&search.value||"").trim().toLowerCase();
+  const counts={};
+  atlasClusters.forEach(function(c){counts[c.id]=0;});
+  professions.forEach(function(p){const c=atlasPrimaryCluster[p.slug]||"all";counts[c]=(counts[c]||0)+1;counts.all++;});
+  if(cats) cats.innerHTML=atlasClusters.map(function(c){
+    const n=counts[c.id]||0;
+    return '<button class="atlas-category '+(atlasCategory===c.id?"active":"")+' '+(!n&&c.id!=="all"?"empty":"")+'" onclick="setAtlasCategory(\''+c.id+'\')"><span>'+c.short+'</span><b>'+c.label+'</b><small>'+n+'</small></button>';
+  }).join("");
+  const active=atlasClusters.find(function(c){return c.id===atlasCategory;})||atlasClusters[0];
+  if(note) note.innerHTML='<div><b>'+active.label+'</b><span>'+active.description+'</span></div><a href="https://mospolytech.ru/news/priemnaya-kampaniya-v-moskovskiy-politekh-postupilo-svyshe-8000-zayavleniy-ot-bolee-chem-2000-chelov/" target="_blank">Структура направлений — приёмная кампания 2026 →</a>';
+  const filtered=professions.filter(function(p){
+    const cluster=atlasPrimaryCluster[p.slug]||"all";
+    if(atlasCategory!=="all" && cluster!==atlasCategory) return false;
+    if(!q) return true;
+    const hay=[p.name,p.sector,p.description,atlasSubcategory[p.slug]].concat(p.skills||[]).join(" ").toLowerCase();
+    return hay.includes(q);
+  });
+  if(count) count.textContent=filtered.length+" "+(filtered.length===1?"профессия":filtered.length>=2&&filtered.length<=4?"профессии":"профессий");
+  if(!filtered.length){
+    el.innerHTML='<div class="atlas-empty card"><b>Профессии этого направления пока дополняются</b><p>Категория уже заложена в структуру Атласа. В текущем MVP контент ещё не наполнен или не совпал с поиском.</p></div>';
+    return;
+  }
+  el.innerHTML=filtered.map(function(p){
+    const cluster=atlasClusters.find(function(c){return c.id===(atlasPrimaryCluster[p.slug]||"all");});
+    return '<article class="content-card atlas-card"><div class="atlas-card-top"><span class="tag">'+(atlasSubcategory[p.slug]||p.sector)+'</span><span class="atlas-cluster-mini">'+(cluster?cluster.short:"")+'</span></div><h3>'+p.name+'</h3><p>'+(p.description||"")+'</p><div class="skills">'+(p.skills||[]).slice(0,6).map(function(s){return '<span>'+s+'</span>';}).join("")+'</div><div class="atlas-card-footer"><span>'+p.sector+'</span><button class="link-btn" onclick="openProfession(\''+p.slug+'\')">Профессия и маршрут →</button></div></article>';
   }).join("");
 }
 function renderPrograms(){
