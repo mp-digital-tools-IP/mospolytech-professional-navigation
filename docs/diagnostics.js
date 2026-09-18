@@ -203,13 +203,16 @@ function readinessScores(){
   const scores=dimensionScores(modeQuestions("readiness"),diagnosis.answers.readinessItems||{}),out={};
   Object.keys(subjectLabels).forEach(k=>out[k]=scores[k]!=null?scores[k]:60);return out;
 }
+function fillScores(scores,keys,def){
+  const out={};keys.forEach(k=>out[k]=scores[k]!=null?scores[k]:def);return out;
+}
 function computeProfile(){
   return {
-    riasec:dimensionScores(modeQuestions("interests"),diagnosis.answers.interests||{}),
-    values:dimensionScores(modeQuestions("values"),diagnosis.answers.values||{}),
+    riasec:fillScores(dimensionScores(modeQuestions("interests"),diagnosis.answers.interests||{}),["R","I","A","S","E","C"],50),
+    values:fillScores(dimensionScores(modeQuestions("values"),diagnosis.answers.values||{}),["achievement","conditions","recognition","relationships","support","independence"],50),
     readiness:readinessScores(),
-    behavior:dimensionScores(modeQuestions("behavior"),diagnosis.answers.behavior||{}),
-    cognitive:dimensionScores(modeQuestions("cognitive"),diagnosis.answers.cognitive||{}),
+    behavior:fillScores(dimensionScores(modeQuestions("behavior"),diagnosis.answers.behavior||{}),["initiative","persistence","selfreg","collaboration","communication","leadership"],50),
+    cognitive:fillScores(dimensionScores(modeQuestions("cognitive"),diagnosis.answers.cognitive||{}),["analysis","ambiguity","structure"],50),
     context:{work_mode:diagnosis.answers.work.mode,team:diagnosis.answers.work.team},
     top_n:10
   };
